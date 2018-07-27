@@ -11,9 +11,10 @@ import {
   View,
   Text
 } from "native-base";
-import { Field, reduxForm } from "redux-form";
+import { Field, reduxForm, formValueSelector } from "redux-form";
 import { setUser } from "../../actions/user";
 import styles from "./styles";
+import LoginServices from "../../services/auth";
 
 const background = require("../../../images/shadow.png");
 
@@ -44,6 +45,7 @@ const validate = values => {
   return error;
 };
 
+
 class Login extends Component {
   static propTypes = {
     setUser: React.PropTypes.func
@@ -54,11 +56,22 @@ class Login extends Component {
       name: ""
     };
     this.renderInput = this.renderInput.bind(this);
+    this.login = this.login.bind(this);
   }
 
   setUser(name) {
     this.props.setUser(name);
   }
+
+  login(values){
+    console.log('get here............', values);
+    LoginServices
+      .login({email : values.email , password : values.password})
+      .then((response) => {
+        this.props.navigation.navigate("Home");
+      })
+  }
+
   renderInput({
     input,
     label,
@@ -87,6 +100,7 @@ class Login extends Component {
     );
   }
   render() {
+    const { handleSubmit } = this.props;
     return (
       <Container>
         <View style={styles.container}>
@@ -97,7 +111,7 @@ class Login extends Component {
                 <Field name="password" component={this.renderInput} />
                 <Button
                   style={styles.btn}
-                  onPress={() => this.props.navigation.navigate("Home")}
+                  onPress={handleSubmit(this.login)}
                 >
                   <Text>Login</Text>
                 </Button>
